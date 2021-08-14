@@ -12,11 +12,13 @@ const wss = new WebSocket.Server({ server });
 
 let mines;
 let clicksCords = []
-
+let timer = 0;
+let timerInterval;
 
 wss.on("connection", ws => {
     if(mines && clicksCords[0]){
        ws.send(JSON.stringify(mines))
+       ws.send(JSON.stringify({type: "points", data: timer}))
        clicksCords.forEach(click => {
          ws.send(JSON.stringify(click))
        })
@@ -26,6 +28,9 @@ wss.on("connection", ws => {
         const json = JSON.parse(data)
         if(json.type === 'mines' && !mines){
           mines = json
+          timerInterval = setInterval(()=>{
+            timer++
+          }, 1000);
         }
         if(json.type === 'click'){
           clicksCords.push(json)
@@ -33,6 +38,8 @@ wss.on("connection", ws => {
         if(json.type === 'restart'){
           mines = null
           clicksCords = []
+          clearInterval(timerInterval)
+          timer = 0
         }
         wss.clients.forEach(function each(client) {
             if (client !== ws && client.readyState === WebSocket.OPEN) {

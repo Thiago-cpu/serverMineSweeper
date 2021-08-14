@@ -16,7 +16,6 @@ let clicksCords = []
 
 wss.on("connection", ws => {
     if(mines && clicksCords[0]){
-      console.log("hola")
        ws.send(JSON.stringify(mines))
        clicksCords.forEach(click => {
          ws.send(JSON.stringify(click))
